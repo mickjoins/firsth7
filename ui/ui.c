@@ -194,26 +194,25 @@ static void DrawHud(void)
 
 static void UpdateHudIfNeeded(void)
 {
-	char score_text[24];
-	char best_text[24];
-
 	if ((game.displayed_score == game.score) && (game.displayed_best_score == game.best_score))
 	{
 		return;
 	}
 
-	FillRectClamped(118, 0, 92U, HUD_HEIGHT, SKY_COLOR);
-	FillRectClamped(234, 0, 82U, HUD_HEIGHT, SKY_COLOR);
-
-	(void)snprintf(score_text, sizeof(score_text), "SCORE %lu", (unsigned long)game.score);
-	(void)snprintf(best_text, sizeof(best_text), "BEST %lu", (unsigned long)game.best_score);
-
 	lcd_set_font(&lcd_desc, FONT_1206, DARKBLUE, SKY_COLOR);
-	lcd_print(&lcd_desc, 118U, 8U, "%s", score_text);
-	lcd_print(&lcd_desc, 234U, 8U, "%s", best_text);
 
-	game.displayed_score = game.score;
-	game.displayed_best_score = game.best_score;
+	if (game.displayed_score != game.score)
+	{
+		/* Overwrite with fixed-width format to cover old digits without clearing */
+		lcd_print(&lcd_desc, 118U, 8U, "SCORE %-8lu", (unsigned long)game.score);
+		game.displayed_score = game.score;
+	}
+
+	if (game.displayed_best_score != game.best_score)
+	{
+		lcd_print(&lcd_desc, 234U, 8U, "BEST %-7lu", (unsigned long)game.best_score);
+		game.displayed_best_score = game.best_score;
+	}
 }
 
 static void DrawTrack(void)
@@ -278,17 +277,38 @@ static void DrawCloud(int16_t x, uint16_t y, uint16_t color)
 
 static void DrawDino(int16_t x, int16_t y, uint16_t color)
 {
-	FillRectClamped(x + 16, y, 10U, 12U, color);
-	FillRectClamped(x + 10, y + 8, 14U, 12U, color);
-	FillRectClamped(x + 4, y + 12, 8U, 6U, color);
-	FillRectClamped(x + 8, y + 20, 16U, 6U, color);
-	FillRectClamped(x + 8, y + 26, 5U, 8U, color);
-	FillRectClamped(x + 18, y + 26, 5U, 8U, color);
+	/* Head: top-right block with snout */
+	FillRectClamped(x + 14, y,      16U, 2U, color);  /* top of head */
+	FillRectClamped(x + 12, y + 2,  18U, 4U, color);  /* upper head */
+	FillRectClamped(x + 12, y + 6,  18U, 2U, color);  /* mid head */
+	FillRectClamped(x + 12, y + 8,  12U, 2U, color);  /* jaw hinge */
+	FillRectClamped(x + 14, y + 10, 16U, 2U, color);  /* open mouth top */
+	FillRectClamped(x + 18, y + 12,  8U, 2U, color);  /* mouth teeth gap */
 
+	/* Eye */
 	if (color == DINO_COLOR)
 	{
-		FillRectClamped(x + 20, y + 4, 2U, 2U, SKY_COLOR);
+		FillRectClamped(x + 22, y + 4, 3U, 3U, SKY_COLOR);
 	}
+
+	/* Neck + body */
+	FillRectClamped(x + 12, y + 14, 10U, 4U, color);  /* neck */
+	FillRectClamped(x + 10, y + 18, 14U, 6U, color);  /* upper body */
+
+	/* Arm (tiny, classic style) */
+	FillRectClamped(x + 20, y + 18,  4U, 2U, color);  /* arm upper */
+	FillRectClamped(x + 22, y + 20,  4U, 2U, color);  /* arm lower */
+
+	/* Lower body + tail */
+	FillRectClamped(x + 6,  y + 22, 18U, 4U, color);  /* wide lower body */
+	FillRectClamped(x + 2,  y + 24, 10U, 4U, color);  /* tail base */
+	FillRectClamped(x,      y + 22,  4U, 4U, color);  /* tail tip */
+
+	/* Legs */
+	FillRectClamped(x + 10, y + 28,  4U, 4U, color);  /* left thigh */
+	FillRectClamped(x + 8,  y + 32,  4U, 2U, color);  /* left foot */
+	FillRectClamped(x + 20, y + 28,  4U, 4U, color);  /* right thigh */
+	FillRectClamped(x + 18, y + 32,  4U, 2U, color);  /* right foot */
 }
 
 static void DrawObstacle(int16_t x, uint16_t height, uint16_t color)
@@ -483,24 +503,6 @@ static void UpdateGameFrame(void)
 		}
 	}
 
-	/* Only erase the exposed strip when dino Y actually changed */
-	if (previous_dino_y != game.dino.y)
-	{
-		if (game.dino.y < previous_dino_y)
-		{
-			/* Moved up: erase bottom strip left behind */
-			int16_t strip_y = game.dino.y + (int16_t)DINO_HEIGHT;
-			uint16_t strip_h = (uint16_t)(previous_dino_y + (int16_t)DINO_HEIGHT - strip_y);
-			RestoreGameBackgroundRect(DINO_X, strip_y, DINO_WIDTH, strip_h);
-		}
-		else
-		{
-			/* Moved down: erase top strip left behind */
-			uint16_t strip_h = (uint16_t)(game.dino.y - previous_dino_y);
-			RestoreGameBackgroundRect(DINO_X, previous_dino_y, DINO_WIDTH, strip_h);
-		}
-	}
-
 	game.obstacle.x = (int16_t)(game.obstacle.x - (int16_t)speed);
 	if ((game.obstacle.x + (int16_t)game.obstacle.width) < 0)
 	{
@@ -522,12 +524,11 @@ static void UpdateGameFrame(void)
 		game.best_score = game.score;
 	}
 
-	/* Draw order: cloud → obstacle → dino (dino last to repair any overlap) */
+	/* Draw cloud and obstacle */
 	DrawCloud(game.cloud.x, game.cloud.y, CLOUD_COLOR);
 	DrawObstacle(game.obstacle.x, game.obstacle.height, OBSTACLE_COLOR);
 
 	{
-		/* Redraw dino if it moved, or if obstacle/cloud erase overlapped its area */
 		uint8_t need_redraw = (previous_dino_y != game.dino.y) ? 1U : 0U;
 
 		if (need_redraw == 0U)
@@ -542,6 +543,12 @@ static void UpdateGameFrame(void)
 
 		if (need_redraw != 0U)
 		{
+			if (previous_dino_y != game.dino.y)
+			{
+				/* Back-to-back erase→draw: erase full old rect then immediately redraw
+				 * at new position. Keeps shape perfect; gap is microseconds. */
+				RestoreGameBackgroundRect(DINO_X, previous_dino_y, DINO_WIDTH, DINO_HEIGHT);
+			}
 			DrawDino(DINO_X, game.dino.y, DINO_COLOR);
 		}
 	}
