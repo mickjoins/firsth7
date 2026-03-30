@@ -36,6 +36,13 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
+/* PLL: HSE(25MHz) / PLLM(5) * PLLN * PLLP(2) = SYSCLK
+ * PLLN = 192 -> 480MHz,  PLLN = 160 -> 400MHz */
+#define PLL_N_VALUE         160U
+
+/* Game frame interval in ms (16=60fps, 20=50fps, 33=30fps) */
+#define GAME_TICK_MS        16U
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -102,6 +109,7 @@ int main(void)
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
 
+  ui_set_game_tick_ms(GAME_TICK_MS);
   ui_init();
 
   /* USER CODE END 2 */
@@ -147,7 +155,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 5;
-  RCC_OscInitStruct.PLL.PLLN = 192;
+  RCC_OscInitStruct.PLL.PLLN = PLL_N_VALUE;
   RCC_OscInitStruct.PLL.PLLP = 2;
   RCC_OscInitStruct.PLL.PLLQ = 5;
   RCC_OscInitStruct.PLL.PLLR = 2;
