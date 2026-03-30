@@ -24,6 +24,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "lvgl.h"
+#include "lv_port_disp.h"
+#include "lv_port_indev.h"
 #include "ui.h"
 
 /* USER CODE END Includes */
@@ -39,9 +42,6 @@
 /* PLL: HSE(25MHz) / PLLM(5) * PLLN * PLLP(2) = SYSCLK
  * PLLN = 192 -> 480MHz,  PLLN = 160 -> 400MHz */
 #define PLL_N_VALUE         160U
-
-/* Game frame interval in ms (16=60fps, 20=50fps, 33=30fps) */
-#define GAME_TICK_MS        16U
 
 /* USER CODE END PD */
 
@@ -109,7 +109,9 @@ int main(void)
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
 
-  ui_set_game_tick_ms(GAME_TICK_MS);
+  lv_init();
+  lv_port_disp_init();
+  lv_port_indev_init();
   ui_init();
 
   /* USER CODE END 2 */
@@ -121,9 +123,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    ui_process();
-
-    __WFI();
+    lv_timer_handler();
+    HAL_Delay(5);
   }
   /* USER CODE END 3 */
 }

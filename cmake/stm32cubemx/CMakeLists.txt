@@ -18,6 +18,8 @@ set(MX_Include_Dirs
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/CMSIS/Device/ST/STM32H7xx/Include
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/CMSIS/Include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../lvgl
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../
 )
 
 # STM32CubeMX generated application sources
@@ -35,6 +37,8 @@ set(MX_Application_Src
     ${CMAKE_CURRENT_SOURCE_DIR}/../../BSP/LCD_ST7789/lcd_core.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../BSP/LCD_ST7789/lcd_font.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../BSP/LCD_ST7789/lcd_port.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../BSP/LCD_ST7789/lv_port_disp.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../BSP/LCD_ST7789/lv_port_indev.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../startup_stm32h750xx.s
 )
 

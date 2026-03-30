@@ -4,7 +4,7 @@
 
 #define FT6336_ADDR       0x38
 
-extern lcd lcd_desc;
+extern lcd lv_lcd;
 
 static I2C_HandleTypeDef* pi2c;
 
@@ -44,19 +44,19 @@ void ft6336_scan(void)
         uint16_t xmap = x;
         uint16_t ymap = y;
 
-        if (lcd_desc.hw->rotate == LCD_ROTATE_90) {
-            xmap = lcd_desc.hw->width - y - 1;
+        if (lv_lcd.hw->rotate == LCD_ROTATE_90) {
+            xmap = lv_lcd.hw->width - y - 1;
             ymap = x;
         }
 
-        if (lcd_desc.hw->rotate == LCD_ROTATE_180) {
-            xmap = lcd_desc.hw->width - x - 1;
-            ymap = lcd_desc.hw->height - y - 1;
+        if (lv_lcd.hw->rotate == LCD_ROTATE_180) {
+            xmap = lv_lcd.hw->width - x - 1;
+            ymap = lv_lcd.hw->height - y - 1;
         }
 
-        if (lcd_desc.hw->rotate == LCD_ROTATE_270) {
+        if (lv_lcd.hw->rotate == LCD_ROTATE_270) {
             xmap = y;
-            ymap = lcd_desc.hw->width - x - 1;
+            ymap = lv_lcd.hw->width - x - 1;
         }
 
         pressed = 1;
