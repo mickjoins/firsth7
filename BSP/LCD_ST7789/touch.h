@@ -4,11 +4,12 @@
 
 #define TP_PRES_DOWN 0x80  
 #define TP_CATH_PRES 0x40  
+#define CTP_MAX_TOUCH 2
 										    
 typedef struct
 {
 	uint8_t (*init)(void);			
-	uint8_t (*scan)(void);				
+	void (*scan)(void);				
 	uint16_t x[CTP_MAX_TOUCH]; 		
 	uint16_t y[CTP_MAX_TOUCH];		
 	uint8_t  sta;					

@@ -443,11 +443,12 @@ static void UpdateGameFrame(void)
 	uint16_t previous_obstacle_height = game.obstacle.height;
 	uint32_t speed = 10U + (game.score / 80U);
 
-	RestoreGameBackgroundRect(DINO_X, previous_dino_y, DINO_WIDTH, DINO_HEIGHT);
+	/* Erase obstacle and cloud at old positions (they always move) */
 	RestoreGameBackgroundRect(previous_obstacle_x, (int16_t)GROUND_Y - (int16_t)previous_obstacle_height,
 						game.obstacle.width, previous_obstacle_height);
 	RestoreGameBackgroundRect(previous_cloud_x, (int16_t)game.cloud.y, game.cloud.width, CLOUD_HEIGHT);
 
+	/* Update dino physics */
 	if (game.dino.airborne != 0U)
 	{
 		game.dino.velocity += GRAVITY;
@@ -458,6 +459,24 @@ static void UpdateGameFrame(void)
 			game.dino.y = DINO_GROUND_Y;
 			game.dino.velocity = 0;
 			game.dino.airborne = 0U;
+		}
+	}
+
+	/* Only erase the exposed strip when dino Y actually changed */
+	if (previous_dino_y != game.dino.y)
+	{
+		if (game.dino.y < previous_dino_y)
+		{
+			/* Moved up: erase bottom strip left behind */
+			int16_t strip_y = game.dino.y + (int16_t)DINO_HEIGHT;
+			uint16_t strip_h = (uint16_t)(previous_dino_y + (int16_t)DINO_HEIGHT - strip_y);
+			RestoreGameBackgroundRect(DINO_X, strip_y, DINO_WIDTH, strip_h);
+		}
+		else
+		{
+			/* Moved down: erase top strip left behind */
+			uint16_t strip_h = (uint16_t)(game.dino.y - previous_dino_y);
+			RestoreGameBackgroundRect(DINO_X, previous_dino_y, DINO_WIDTH, strip_h);
 		}
 	}
 
@@ -482,9 +501,29 @@ static void UpdateGameFrame(void)
 		game.best_score = game.score;
 	}
 
+	/* Draw order: cloud → obstacle → dino (dino last to repair any overlap) */
 	DrawCloud(game.cloud.x, game.cloud.y, CLOUD_COLOR);
 	DrawObstacle(game.obstacle.x, game.obstacle.height, OBSTACLE_COLOR);
-	DrawDino(DINO_X, game.dino.y, DINO_COLOR);
+
+	{
+		/* Redraw dino if it moved, or if obstacle/cloud erase overlapped its area */
+		uint8_t need_redraw = (previous_dino_y != game.dino.y) ? 1U : 0U;
+
+		if (need_redraw == 0U)
+		{
+			int16_t dino_right = DINO_X + (int16_t)DINO_WIDTH;
+			if ((previous_obstacle_x < dino_right) &&
+				((previous_obstacle_x + (int16_t)game.obstacle.width) > DINO_X))
+			{
+				need_redraw = 1U;
+			}
+		}
+
+		if (need_redraw != 0U)
+		{
+			DrawDino(DINO_X, game.dino.y, DINO_COLOR);
+		}
+	}
 	UpdateHudIfNeeded();
 
 	if (CheckCollision() != 0U)

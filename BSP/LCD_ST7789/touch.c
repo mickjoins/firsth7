@@ -1,18 +1,18 @@
 /*
- * @Author: ÐÇ±Ø³¾Sguan
+ * @Author: ï¿½Ç±Ø³ï¿½Sguan
  * @Date: 2025-04-27 21:49:12
- * @LastEditors: ÐÇ±Ø³¾Sguan|3464647102@qq.com
+ * @LastEditors: ï¿½Ç±Ø³ï¿½Sguan|3464647102@qq.com
  * @LastEditTime: 2025-04-29 21:51:28
  * @FilePath: \test_SPIscreen\Hardware\touch.c
- * @Description: [ÒÑÍê³É]´¥¿ØÖ÷º¯ÊýµÄ±àÐ´
+ * @Description: [ï¿½ï¿½ï¿½ï¿½ï¿½]ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä±ï¿½Ð´
  * 
  * Copyright (c) 2025 by $JUST, All Rights Reserved. 
  */
 #include "touch.h" 
 #include "lcd.h"
-#include "delay.h"
-#include "stdlib.h"
-#include "math.h"
+#include "i2c.h"
+#include <stdlib.h>
+#include <math.h>
 
 _m_tp_dev tp_dev=
 {
@@ -22,16 +22,13 @@ _m_tp_dev tp_dev=
 	0,
  	0,	
 };					
-//Ä¬ÈÏÎªtouchtype=0µÄÊý¾Ý.
+//Ä¬ï¿½ï¿½Îªtouchtype=0ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
  
 
 uint8_t TP_Init(void)
-{			    		   
-	if(FT6336_Init())
-	{
-		return 1;
-	}
-	tp_dev.scan=FT6336_Scan;	//É¨Ãèº¯ÊýÖ¸ÏòGT911´¥ÃþÆÁÉ¨Ãè
+{
+	ft6336_init(&hi2c1);
+	tp_dev.scan = ft6336_scan;
 	return 0;
 }
 
