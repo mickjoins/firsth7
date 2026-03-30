@@ -36,7 +36,7 @@
     #define LV_MEM_CUSTOM_FREE    free
     #define LV_MEM_CUSTOM_REALLOC realloc
 #endif
-#define LV_MEM_BUF_MAX_NUM 16
+#define LV_MEM_BUF_MAX_NUM 8
 #define LV_MEMCPY_MEMSET_STD 1
 
 /*====================
@@ -109,7 +109,7 @@
 #define LV_USE_PERF_MONITOR 0
 #define LV_USE_MEM_MONITOR 0
 #define LV_USE_REFR_DEBUG 0
-#define LV_SPRINTF_CUSTOM 0
+#define LV_SPRINTF_CUSTOM 1
 #if LV_SPRINTF_CUSTOM
     #define LV_SPRINTF_INCLUDE <stdio.h>
     #define lv_snprintf  snprintf
@@ -177,7 +177,7 @@
 #if LV_USE_FONT_SUBPX
     #define LV_FONT_SUBPX_BGR 0
 #endif
-#define LV_USE_FONT_PLACEHOLDER 1
+#define LV_USE_FONT_PLACEHOLDER 0
 
 /*=================
  *  TEXT SETTINGS
@@ -246,7 +246,7 @@
 /*==================
  * LAYOUTS
  *==================*/
-#define LV_USE_FLEX 1
+#define LV_USE_FLEX 0
 #define LV_USE_GRID 0
 
 /*==================
