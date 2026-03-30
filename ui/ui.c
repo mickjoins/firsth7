@@ -45,7 +45,8 @@ static uint32_t game_tick_ms = 16U;
 #define TRACK_PATTERN_SPACING 24U
 
 typedef enum {
-	UI_SCREEN_TITLE = 0,
+	UI_SCREEN_MENU = 0,
+	UI_SCREEN_TITLE,
 	UI_SCREEN_PLAYING,
 	UI_SCREEN_GAME_OVER,
 } ui_screen;
@@ -107,7 +108,7 @@ uint16_t y_pos = 0U;
 
 static uint32_t touch_tick = 0U;
 static game_state game = {
-	.screen = UI_SCREEN_TITLE,
+	.screen = UI_SCREEN_MENU,
 	.dino = { .y = DINO_GROUND_Y, .velocity = 0, .airborne = 0U },
 	.obstacle = { .x = (int16_t)(LCD_WIDTH_PIXELS + 48U), .width = OBSTACLE_WIDTH, .height = 48U },
 	.cloud = { .x = 220, .y = 86U, .width = CLOUD_WIDTH },
@@ -331,6 +332,26 @@ static void ResetRound(void)
 	game.touch_latched = 0U;
 }
 
+#define MENU_BTN_X  60U
+#define MENU_BTN_W 200U
+#define MENU_BTN_H  40U
+#define MENU_GAME_Y 200U
+
+static void DrawMainMenu(void)
+{
+	game.screen = UI_SCREEN_MENU;
+	game.touch_latched = 0U;
+	lcd_clear(&lcd_desc, DARKBLUE);
+
+	DrawCenteredText(60U, "MAIN MENU", FONT_1608, WHITE, DARKBLUE);
+
+	/* Game button */
+	FillRectClamped(MENU_BTN_X, MENU_GAME_Y, MENU_BTN_W, MENU_BTN_H, GREEN);
+	lcd_draw_rectangle(&lcd_desc, MENU_BTN_X, MENU_GAME_Y,
+					   MENU_BTN_X + MENU_BTN_W - 1U, MENU_GAME_Y + MENU_BTN_H - 1U, WHITE);
+	DrawCenteredText(MENU_GAME_Y + 12U, "GAME", FONT_1608, WHITE, GREEN);
+}
+
 static void DrawTitleScreen(void)
 {
 	game.screen = UI_SCREEN_TITLE;
@@ -548,7 +569,7 @@ void ui_init(void)
 	ft6336_init(&hi2c1);
 	touch_tick = HAL_GetTick();
 	game.rng_state ^= touch_tick;
-	DrawTitleScreen();
+	DrawMainMenu();
 }
 
 void ui_process(void)
@@ -567,6 +588,16 @@ void ui_process(void)
 
 	if (touch_edge != 0U)
 	{
+		if (game.screen == UI_SCREEN_MENU)
+		{
+			if ((y_pos >= MENU_GAME_Y) && (y_pos <= (MENU_GAME_Y + MENU_BTN_H))
+				&& (x_pos >= MENU_BTN_X) && (x_pos <= (MENU_BTN_X + MENU_BTN_W)))
+			{
+				DrawTitleScreen();
+			}
+			return;
+		}
+
 		if (game.screen == UI_SCREEN_TITLE)
 		{
 			StartGame();
@@ -581,7 +612,7 @@ void ui_process(void)
 			}
 			else if ((y_pos >= 256U) && (y_pos <= 285U) && (x_pos >= 60U) && (x_pos <= 259U))
 			{
-				DrawTitleScreen();
+				DrawMainMenu();
 			}
 			return;
 		}
