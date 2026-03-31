@@ -7,14 +7,14 @@
 
 # =============================================================================
 # Project: firsth7
-# Configurations: Release
+# Configurations: Debug
 # =============================================================================
 # =============================================================================
 
 #############################################
 # Rule for compiling ASM files.
 
-rule ASM_COMPILER__firsth7_unscanned_Release
+rule ASM_COMPILER__firsth7_unscanned_Debug
   depfile = $DEP_FILE
   deps = gcc
   command = ${LAUNCHER}${CODE_CHECK}/usr/bin/arm-none-eabi-gcc $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
@@ -24,7 +24,7 @@ rule ASM_COMPILER__firsth7_unscanned_Release
 #############################################
 # Rule for compiling C files.
 
-rule C_COMPILER__firsth7_unscanned_Release
+rule C_COMPILER__firsth7_unscanned_Debug
   depfile = $DEP_FILE
   deps = gcc
   command = ${LAUNCHER}${CODE_CHECK}/usr/bin/arm-none-eabi-gcc $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
@@ -34,7 +34,7 @@ rule C_COMPILER__firsth7_unscanned_Release
 #############################################
 # Rule for linking C executable.
 
-rule C_EXECUTABLE_LINKER__firsth7_Release
+rule C_EXECUTABLE_LINKER__firsth7_Debug
   command = $PRE_LINK && /usr/bin/arm-none-eabi-gcc $FLAGS $LINK_FLAGS $in -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD
   description = Linking C executable $TARGET_FILE
   restat = $RESTAT
@@ -51,7 +51,7 @@ rule CUSTOM_COMMAND
 #############################################
 # Rule for compiling C files.
 
-rule C_COMPILER__lvgl_unscanned_Release
+rule C_COMPILER__lvgl_unscanned_Debug
   depfile = $DEP_FILE
   deps = gcc
   command = ${LAUNCHER}${CODE_CHECK}/usr/bin/arm-none-eabi-gcc $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
@@ -61,7 +61,7 @@ rule C_COMPILER__lvgl_unscanned_Release
 #############################################
 # Rule for linking C static library.
 
-rule C_STATIC_LIBRARY_LINKER__lvgl_Release
+rule C_STATIC_LIBRARY_LINKER__lvgl_Debug
   command = $PRE_LINK && /usr/bin/cmake -E rm -f $TARGET_FILE && /usr/bin/arm-none-eabi-ar qc $TARGET_FILE $LINK_FLAGS $in && /usr/bin/arm-none-eabi-ranlib $TARGET_FILE && $POST_BUILD
   description = Linking C static library $TARGET_FILE
   restat = $RESTAT
@@ -70,7 +70,7 @@ rule C_STATIC_LIBRARY_LINKER__lvgl_Release
 #############################################
 # Rule for compiling C files.
 
-rule C_COMPILER__lvgl_examples_unscanned_Release
+rule C_COMPILER__lvgl_examples_unscanned_Debug
   depfile = $DEP_FILE
   deps = gcc
   command = ${LAUNCHER}${CODE_CHECK}/usr/bin/arm-none-eabi-gcc $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
@@ -80,7 +80,7 @@ rule C_COMPILER__lvgl_examples_unscanned_Release
 #############################################
 # Rule for linking C static library.
 
-rule C_STATIC_LIBRARY_LINKER__lvgl_examples_Release
+rule C_STATIC_LIBRARY_LINKER__lvgl_examples_Debug
   command = $PRE_LINK && /usr/bin/cmake -E rm -f $TARGET_FILE && /usr/bin/arm-none-eabi-ar qc $TARGET_FILE $LINK_FLAGS $in && /usr/bin/arm-none-eabi-ranlib $TARGET_FILE && $POST_BUILD
   description = Linking C static library $TARGET_FILE
   restat = $RESTAT
@@ -89,7 +89,7 @@ rule C_STATIC_LIBRARY_LINKER__lvgl_examples_Release
 #############################################
 # Rule for compiling C files.
 
-rule C_COMPILER__lvgl_demos_unscanned_Release
+rule C_COMPILER__lvgl_demos_unscanned_Debug
   depfile = $DEP_FILE
   deps = gcc
   command = ${LAUNCHER}${CODE_CHECK}/usr/bin/arm-none-eabi-gcc $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
@@ -99,7 +99,7 @@ rule C_COMPILER__lvgl_demos_unscanned_Release
 #############################################
 # Rule for linking C static library.
 
-rule C_STATIC_LIBRARY_LINKER__lvgl_demos_Release
+rule C_STATIC_LIBRARY_LINKER__lvgl_demos_Debug
   command = $PRE_LINK && /usr/bin/cmake -E rm -f $TARGET_FILE && /usr/bin/arm-none-eabi-ar qc $TARGET_FILE $LINK_FLAGS $in && /usr/bin/arm-none-eabi-ranlib $TARGET_FILE && $POST_BUILD
   description = Linking C static library $TARGET_FILE
   restat = $RESTAT
@@ -108,7 +108,7 @@ rule C_STATIC_LIBRARY_LINKER__lvgl_demos_Release
 #############################################
 # Rule for compiling C files.
 
-rule C_COMPILER__STM32_Drivers_unscanned_Release
+rule C_COMPILER__STM32_Drivers_unscanned_Debug
   depfile = $DEP_FILE
   deps = gcc
   command = ${LAUNCHER}${CODE_CHECK}/usr/bin/arm-none-eabi-gcc $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
