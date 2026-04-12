@@ -69,6 +69,12 @@ void Error_Handler(void);
 #define TP_IRQ_GPIO_Port GPIOA
 #define LCD_LED_Pin GPIO_PIN_0
 #define LCD_LED_GPIO_Port GPIOE
+#define LEDR_Pin GPIO_PIN_0
+#define LEDR_GPIO_Port GPIOC
+#define LEDG_Pin GPIO_PIN_1
+#define LEDG_GPIO_Port GPIOC
+#define LEDB_Pin GPIO_PIN_2
+#define LEDB_GPIO_Port GPIOC
 
 /* USER CODE BEGIN Private defines */
 

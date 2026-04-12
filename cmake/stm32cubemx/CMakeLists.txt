@@ -12,14 +12,11 @@ set(MX_Defines_Syms
 # STM32CubeMX generated include paths
 set(MX_Include_Dirs
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Core/Inc
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../ui
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../BSP/LCD_ST7789
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/STM32H7xx_HAL_Driver/Inc
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/CMSIS/Device/ST/STM32H7xx/Include
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/CMSIS/Include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../lvgl
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../sfud/inc
 )
 
 # STM32CubeMX generated application sources
@@ -32,13 +29,11 @@ set(MX_Application_Src
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Core/Src/stm32h7xx_hal_msp.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Core/Src/sysmem.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Core/Src/syscalls.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../ui/ui.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../BSP/LCD_ST7789/ft6336.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../BSP/LCD_ST7789/lcd_core.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../BSP/LCD_ST7789/lcd_font.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../BSP/LCD_ST7789/lcd_port.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../BSP/LCD_ST7789/lv_port_disp.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../BSP/LCD_ST7789/lv_port_indev.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Core/Src/quadspi.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Core/Src/usart.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../sfud/src/sfud.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../sfud/src/sfud_sfdp.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../sfud/port/sfud_port.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../startup_stm32h750xx.s
 )
 
@@ -65,6 +60,10 @@ set(STM32_Drivers_Src
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_exti.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim_ex.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_qspi.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_delayblock.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart_ex.c
 )
 
 # Drivers Midllewares

@@ -32,7 +32,7 @@ lcd_hw lcd_hw_2_00 = {
 };
 
 lcd_hw lcd_hw_3_50 = {
-    .name   = "2.00 inch",
+    .name   = "3.50 inch",
     .type   = LCD_3_50_INCH,
     .width  = 480,
     .height = 320,

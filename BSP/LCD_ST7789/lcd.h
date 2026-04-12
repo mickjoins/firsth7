@@ -21,7 +21,7 @@ typedef enum {
 } lcd_rotate;
 
 typedef struct __lcd_hw {
-    char* name;
+    const char* name;
     lcd_type type;
     lcd_rotate rotate;
     

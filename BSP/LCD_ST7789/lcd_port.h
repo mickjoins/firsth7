@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+typedef void (*lcd_dma_complete_cb_t)(void *user_data);
+
 typedef struct __gpio_io {
     void* port;
     uint16_t pin;
@@ -28,6 +30,7 @@ void lcd_io_dc(lcd_io* lcdio, bool flag);
 void lcd_write_byte(lcd_io* lcdio, uint8_t data);
 void lcd_write_halfword(lcd_io* lcdio, uint16_t data);
 void lcd_write_bulk(lcd_io* lcdio, uint8_t* data, uint32_t len);
+bool lcd_write_bulk_dma(lcd_io* lcdio, uint8_t* data, uint32_t len, lcd_dma_complete_cb_t complete_cb, void *user_data);
 void lcd_write_reg(lcd_io* lcdio, uint8_t data);
     
 #endif

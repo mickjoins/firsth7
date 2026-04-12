@@ -9,12 +9,19 @@
 #include "main.h"
 #include "spi.h"
 
+#if defined(__GNUC__)
+#define LCD_DMA_BUFFER __attribute__((section(".dma_buffer"), aligned(32)))
+#else
+#define LCD_DMA_BUFFER
+#endif
+
 #define DISP_HOR_RES 320
 #define DISP_VER_RES 480
 
-/* Draw buffer — 10 lines */
+/* Draw buffers — two 40-line chunks for render/send overlap */
 static lv_disp_draw_buf_t draw_buf;
-static lv_color_t buf1[DISP_HOR_RES * 10];
+static lv_color_t buf1[DISP_HOR_RES * 40] LCD_DMA_BUFFER;
+static lv_color_t buf2[DISP_HOR_RES * 40] LCD_DMA_BUFFER;
 
 /* Display driver */
 static lv_disp_drv_t disp_drv;
@@ -38,6 +45,13 @@ lcd lv_lcd = {
     .timeout      = 0U
 };
 
+static void disp_flush_complete(void *user_data)
+{
+    lv_disp_drv_t *drv = (lv_disp_drv_t *)user_data;
+
+    lv_disp_flush_ready(drv);
+}
+
 /**
  * Flush callback — send a rendered area to the display
  */
@@ -50,9 +64,10 @@ static void disp_flush(lv_disp_drv_t *drv, const lv_area_t *area, lv_color_t *co
                     (uint16_t)area->x1, (uint16_t)area->y1,
                     (uint16_t)area->x2, (uint16_t)area->y2);
 
-    lcd_write_bulk(lv_lcd.io, (uint8_t *)color_p, (uint32_t)(w * h * 2));
-
-    lv_disp_flush_ready(drv);
+    if (!lcd_write_bulk_dma(lv_lcd.io, (uint8_t *)color_p, (uint32_t)(w * h * 2), disp_flush_complete, drv)) {
+        lcd_write_bulk(lv_lcd.io, (uint8_t *)color_p, (uint32_t)(w * h * 2));
+        lv_disp_flush_ready(drv);
+    }
 }
 
 void lv_port_disp_init(void)
@@ -61,7 +76,7 @@ void lv_port_disp_init(void)
     lcd_init_dev(&lv_lcd, LCD_3_50_INCH, LCD_ROTATE_0);
 
     /* Initialise draw buffer */
-    lv_disp_draw_buf_init(&draw_buf, buf1, NULL, DISP_HOR_RES * 10);
+    lv_disp_draw_buf_init(&draw_buf, buf1, buf2, DISP_HOR_RES * 40);
 
     /* Register the display driver */
     lv_disp_drv_init(&disp_drv);

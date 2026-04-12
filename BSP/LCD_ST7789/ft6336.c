@@ -6,6 +6,10 @@
 
 extern lcd lv_lcd;
 
+uint8_t pressed = 0U;
+uint16_t x_pos = 0U;
+uint16_t y_pos = 0U;
+
 static I2C_HandleTypeDef* pi2c;
 
 void ft6336_read(uint8_t reg, uint8_t *buf, uint8_t len)

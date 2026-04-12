@@ -20,10 +20,16 @@
 #include "main.h"
 #include "gpio.h"
 #include "i2c.h"
+#include "quadspi.h"
 #include "spi.h"
+#include "usart.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "sfud.h"
+#include <stdio.h>
+#include <string.h>
+
 #include "lvgl.h"
 #include "lv_port_disp.h"
 #include "lv_port_indev.h"
@@ -53,19 +59,27 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+static const sfud_flash *flash;
+static uint8_t rx_byte;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MPU_Config(void);
 /* USER CODE BEGIN PFP */
-
+static void sfud_test_menu(void);
+static void sfud_test_read(uint32_t addr, uint32_t size);
+static void sfud_test_write(uint32_t addr);
+static void sfud_test_erase(uint32_t addr, uint32_t size);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+int __io_putchar(int ch)
+{
+  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+  return ch;
+}
 /* USER CODE END 0 */
 
 /**
@@ -106,9 +120,24 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_I2C1_Init();
+  MX_QUADSPI_Init();
   MX_SPI1_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  if (sfud_init() == SFUD_SUCCESS) {
+      flash = sfud_get_device(SFUD_W25_DEVICE_INDEX);
+      sfud_qspi_fast_read_enable((sfud_flash *)flash, 4);
+      printf("SFUD init OK: %s\r\n", flash->name);
+  } else {
+      printf("SFUD init FAILED\r\n");
+  }
+
+  /* Enable UART receive interrupt for command input */
+  HAL_UART_Receive_IT(&huart1, &rx_byte, 1);
+  sfud_test_menu();
+
+  /* ---- LVGL ---- */
   lv_init();
   lv_port_disp_init();
   lv_port_indev_init();
@@ -188,7 +217,85 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  if (huart->Instance != USART1) return;
 
+  if (flash) {
+    switch (rx_byte) {
+      case '1':
+        sfud_test_read(0, 256);
+        break;
+      case '2':
+        sfud_test_write(0);
+        break;
+      case '3':
+        sfud_test_erase(0, 4096);
+        break;
+      case '4':
+        printf("Flash: %s, %lu bytes\r\n", flash->name,
+               (unsigned long)flash->chip.capacity);
+        break;
+      default:
+        sfud_test_menu();
+        break;
+    }
+  } else {
+    printf("Flash not initialized!\r\n");
+  }
+
+  /* Re-arm receive */
+  HAL_UART_Receive_IT(&huart1, &rx_byte, 1);
+}
+
+static void sfud_test_menu(void)
+{
+  printf("\r\n--- SFUD Flash Test ---\r\n");
+  printf("1: Read  256 bytes from 0x00\r\n");
+  printf("2: Write test pattern to 0x00\r\n");
+  printf("3: Erase sector at 0x00\r\n");
+  printf("4: Show flash info\r\n");
+  printf("> ");
+}
+
+static void sfud_test_read(uint32_t addr, uint32_t size)
+{
+  uint8_t buf[256];
+  if (size > sizeof(buf)) size = sizeof(buf);
+
+  sfud_err ret = sfud_read(flash, addr, size, buf);
+  if (ret != SFUD_SUCCESS) {
+    printf("Read failed: %d\r\n", ret);
+    return;
+  }
+  printf("Read %lu bytes @ 0x%08lX:\r\n", (unsigned long)size, (unsigned long)addr);
+  for (uint32_t i = 0; i < size; i++) {
+    printf("%02X ", buf[i]);
+    if ((i & 0xF) == 0xF) printf("\r\n");
+  }
+  printf("\r\n");
+}
+
+static void sfud_test_write(uint32_t addr)
+{
+  uint8_t buf[16];
+  for (uint8_t i = 0; i < sizeof(buf); i++) buf[i] = i;
+
+  sfud_err ret = sfud_erase_write(flash, addr, sizeof(buf), buf);
+  if (ret == SFUD_SUCCESS)
+    printf("Write OK: 16 bytes @ 0x%08lX\r\n", (unsigned long)addr);
+  else
+    printf("Write failed: %d\r\n", ret);
+}
+
+static void sfud_test_erase(uint32_t addr, uint32_t size)
+{
+  sfud_err ret = sfud_erase(flash, addr, size);
+  if (ret == SFUD_SUCCESS)
+    printf("Erase OK: %lu bytes @ 0x%08lX\r\n", (unsigned long)size, (unsigned long)addr);
+  else
+    printf("Erase failed: %d\r\n", ret);
+}
 /* USER CODE END 4 */
 
  /* MPU Configuration */
@@ -215,6 +322,22 @@ void MPU_Config(void)
   MPU_InitStruct.IsBufferable = MPU_ACCESS_NOT_BUFFERABLE;
 
   HAL_MPU_ConfigRegion(&MPU_InitStruct);
+
+  /* Configure MPU for QSPI flash memory-mapped region (0x90000000, 16MB, read-only, cacheable) */
+  MPU_InitStruct.Enable = MPU_REGION_ENABLE;
+  MPU_InitStruct.Number = MPU_REGION_NUMBER1;
+  MPU_InitStruct.BaseAddress = 0x90000000;
+  MPU_InitStruct.Size = MPU_REGION_SIZE_16MB;
+  MPU_InitStruct.SubRegionDisable = 0x00;
+  MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL0;
+  MPU_InitStruct.AccessPermission = MPU_REGION_FULL_ACCESS;
+  MPU_InitStruct.DisableExec = MPU_INSTRUCTION_ACCESS_DISABLE;
+  MPU_InitStruct.IsShareable = MPU_ACCESS_NOT_SHAREABLE;
+  MPU_InitStruct.IsCacheable = MPU_ACCESS_CACHEABLE;
+  MPU_InitStruct.IsBufferable = MPU_ACCESS_NOT_BUFFERABLE;
+
+  HAL_MPU_ConfigRegion(&MPU_InitStruct);
+
   /* Enables the MPU */
   HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
 

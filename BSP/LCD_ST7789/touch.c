@@ -14,13 +14,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-_m_tp_dev tp_dev=
-{
+_m_tp_dev tp_dev = {
 	TP_Init,
 	NULL,
-	0,
-	0,
- 	0,	
+	{ 0 },
+	{ 0 },
+ 	0,
 };					
 //Ĭ��Ϊtouchtype=0������.
  

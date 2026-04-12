@@ -7,10 +7,6 @@
 #include "ft6336.h"
 #include "i2c.h"
 
-uint8_t pressed = 0U;
-uint16_t x_pos = 0U;
-uint16_t y_pos = 0U;
-
 static lv_indev_drv_t indev_drv;
 
 static void touchpad_read(lv_indev_drv_t *drv, lv_indev_data_t *data)

@@ -60,7 +60,8 @@ RAM (xrw)      : ORIGIN = 0x24000000, LENGTH = 512K
 RAM_D2 (xrw)      : ORIGIN = 0x30000000, LENGTH = 288K
 RAM_D3 (xrw)      : ORIGIN = 0x38000000, LENGTH = 64K
 ITCMRAM (xrw)      : ORIGIN = 0x00000000, LENGTH = 64K
-FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 128K
+FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 2048K
+QSPI_FLASH (rx)    : ORIGIN = 0x90000000, LENGTH = 8M
 }
 
 /* Highest address of the user mode stack */
@@ -151,6 +152,15 @@ SECTIONS
     . = ALIGN(4);
   } >FLASH
 
+  /* LVGL large const data (fonts, images, etc.) - placed in internal flash */
+  .extflash :
+  {
+    . = ALIGN(4);
+    *(.extflash)
+    *(.extflash*)
+    . = ALIGN(4);
+  } >FLASH
+
   /* used by the startup to initialize data */
   _sidata = LOADADDR(.data);
 
@@ -225,6 +235,13 @@ SECTIONS
       PROVIDE( __bss_end = .);
   } >DTCMRAM
   PROVIDE( __non_tls_bss_start = ADDR(.bss) );
+
+  .dma_buffer (NOLOAD) : ALIGN(32)
+  {
+    *(.dma_buffer)
+    *(.dma_buffer*)
+    . = ALIGN(32);
+  } >RAM
 
   PROVIDE( __bss_start = __tbss_start );
   PROVIDE( __bss_size = __bss_end - __bss_start );

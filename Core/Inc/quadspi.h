@@ -1,13 +1,13 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file    spi.h
+  * @file    quadspi.h
   * @brief   This file contains all the function prototypes for
-  *          the spi.c file
+  *          the quadspi.c file
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2025 STMicroelectronics.
+  * Copyright (c) 2024 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -18,8 +18,8 @@
   */
 /* USER CODE END Header */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __SPI_H__
-#define __SPI_H__
+#ifndef __QUADSPI_H__
+#define __QUADSPI_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,22 +32,21 @@ extern "C" {
 
 /* USER CODE END Includes */
 
-extern SPI_HandleTypeDef hspi1;
-extern DMA_HandleTypeDef hdma_spi1_tx;
+extern QSPI_HandleTypeDef hqspi;
 
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
-void MX_SPI1_Init(void);
+void MX_QUADSPI_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+void QSPI_EnableMemoryMappedMode(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __SPI_H__ */
+#endif /* __QUADSPI_H__ */
 
