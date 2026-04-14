@@ -18,7 +18,8 @@
 
 | 主菜单 | 计算器 | 时钟 |
 |--------|--------|------|
-| ![主菜单](docs/preview_menu.png) | ![计算器](docs/preview_calc.png) | ![时钟](docs/preview_clock.png) |
+| ![主菜单](https://imgloc.com/image/ZIgE9c
+) | ![计算器](docs/preview_calc.png) | ![时钟](docs/preview_clock.png) |
 
 > 预览图来自 LVGL PC Simulator，实机效果以开发板为准。
 
