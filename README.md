@@ -18,7 +18,7 @@
 
 | 主菜单 | 计算器 | 时钟 |
 |--------|--------|------|
-| ![主菜单](https://imgloc.com/image/ZIgE9c) | ![计算器](https://imgloc.com/image/ZIg4v9) | ![时钟](https://imgloc.com/image/ZIgdpp) |
+| ![主菜单](https://i.imgs.ovh/2026/04/14/ZIgE9c.png) | ![计算器](https://i.imgs.ovh/2026/04/14/ZIg4v9.png) | ![时钟](https://i.imgs.ovh/2026/04/14/ZIgdpp.png) |
 
 > 预览图来自 LVGL PC Simulator，实机效果以开发板为准。
 
