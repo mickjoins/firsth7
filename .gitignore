@@ -1,1 +1,16 @@
+# Build outputs
 build/
+*.elf
+*.bin
+*.map
+*.hex
+
+# IDE files
+.vscode/
+.vimrc
+*.ioc.bak
+
+# OS
+.DS_Store
+Thumbs.db
+

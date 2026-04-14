@@ -64,6 +64,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     BSP/LCD_ST7789/lv_port_indev.c
     BSP/LCD_ST7789/lv_font_custom_cn16.c
     # Application UI
+    calculator/calculator_app.c
     clock/clock_app.c
     ui/ui.c
 )
@@ -73,6 +74,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}              # for lv_conf.h
     ${CMAKE_SOURCE_DIR}/lvgl         # for lvgl.h etc.
     ${CMAKE_SOURCE_DIR}/BSP/LCD_ST7789
+    ${CMAKE_SOURCE_DIR}/calculator
     ${CMAKE_SOURCE_DIR}/clock
     ${CMAKE_SOURCE_DIR}/ui
 )

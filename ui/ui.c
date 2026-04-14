@@ -1,5 +1,6 @@
 #include "ui.h"
 
+#include "calculator_app.h"
 #include "clock_app.h"
 #include "main.h"
 
@@ -18,6 +19,7 @@ LV_FONT_DECLARE(lv_font_custom_cn16);
 #define ICON_AUDIO       LV_SYMBOL_AUDIO
 #define ICON_LED         LV_SYMBOL_CHARGE
 #define ICON_CLOCK       LV_SYMBOL_BELL
+#define ICON_CALC        LV_SYMBOL_EDIT
 #define ICON_INFO        LV_SYMBOL_LIST
 
 static void build_main_menu(void);
@@ -34,16 +36,23 @@ static void build_audio_page(lv_obj_t *menu, lv_obj_t *page);
 static void build_led_page(lv_obj_t *menu, lv_obj_t *page);
 static void build_about_page(lv_obj_t *menu, lv_obj_t *page);
 
-static void clock_exit_cb(void *user_data)
+static void app_exit_cb(void *user_data)
 {
     LV_UNUSED(user_data);
     build_main_menu();
 }
 
+static void open_calculator_event_cb(lv_event_t *event)
+{
+    LV_UNUSED(event);
+    calculator_app_set_exit_callback(app_exit_cb, NULL);
+    calculator_app_init(lv_scr_act());
+}
+
 static void open_clock_event_cb(lv_event_t *event)
 {
     LV_UNUSED(event);
-    clock_app_set_exit_callback(clock_exit_cb, NULL);
+    clock_app_set_exit_callback(app_exit_cb, NULL);
     clock_app_init(lv_scr_act());
 }
 
@@ -286,7 +295,7 @@ static void build_main_menu(void)
         const char *text;
         lv_obj_t *page;
         lv_event_cb_t cb;
-    } items[6];
+    } items[7];
 
     lv_obj_clean(lv_scr_act());
     lv_obj_set_style_bg_color(lv_scr_act(), COLOR_BG, 0);
@@ -370,10 +379,11 @@ static void build_main_menu(void)
     items[1] = (struct menu_item_desc){ ICON_WIFI, "\xe7\xbd\x91\xe7\xbb\x9c", page_network, NULL };
     items[2] = (struct menu_item_desc){ ICON_AUDIO, "\xe9\x9f\xb3\xe9\xa2\x91", page_audio, NULL };
     items[3] = (struct menu_item_desc){ ICON_LED, "\xe7\x81\xaf\xe6\x8e\xa7", page_led, NULL };
-    items[4] = (struct menu_item_desc){ ICON_CLOCK, "\xe6\x97\xb6\xe9\x92\x9f", NULL, open_clock_event_cb };
-    items[5] = (struct menu_item_desc){ ICON_INFO, "\xe5\x85\xb3\xe4\xba\x8e", page_about, NULL };
+    items[4] = (struct menu_item_desc){ ICON_CALC, "\xe8\xae\xa1\xe7\xae\x97\xe5\x99\xa8", NULL, open_calculator_event_cb };
+    items[5] = (struct menu_item_desc){ ICON_CLOCK, "\xe6\x97\xb6\xe9\x92\x9f", NULL, open_clock_event_cb };
+    items[6] = (struct menu_item_desc){ ICON_INFO, "\xe5\x85\xb3\xe4\xba\x8e", page_about, NULL };
 
-    for (uint32_t i = 0; i < 6U; ++i) {
+    for (uint32_t i = 0; i < 7U; ++i) {
         lv_obj_t *item = lv_obj_create(list_cont);
         lv_obj_set_size(item, LV_PCT(100), LV_SIZE_CONTENT);
         lv_obj_set_style_bg_color(item, COLOR_PANEL, 0);
