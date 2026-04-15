@@ -58,6 +58,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     BSP/LCD_ST7789/lcd_core.c
     BSP/LCD_ST7789/lcd_port.c
     BSP/LCD_ST7789/lcd_font.c
+    BSP/LCD_ST7789/lcd_brightness.c
     BSP/LCD_ST7789/ft6336.c
     BSP/LCD_ST7789/touch.c
     BSP/LCD_ST7789/lv_port_disp.c

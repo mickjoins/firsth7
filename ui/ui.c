@@ -2,6 +2,7 @@
 
 #include "calculator_app.h"
 #include "clock_app.h"
+#include "lcd_brightness.h"
 #include "main.h"
 
 LV_FONT_DECLARE(lv_font_custom_cn16);
@@ -15,26 +16,18 @@ LV_FONT_DECLARE(lv_font_custom_cn16);
 #define COLOR_TEXT_SEC   lv_color_hex(0x8892A0)
 
 #define ICON_DISPLAY     LV_SYMBOL_IMAGE
-#define ICON_WIFI        LV_SYMBOL_WIFI
-#define ICON_AUDIO       LV_SYMBOL_AUDIO
 #define ICON_LED         LV_SYMBOL_CHARGE
 #define ICON_CLOCK       LV_SYMBOL_BELL
 #define ICON_CALC        LV_SYMBOL_EDIT
-#define ICON_INFO        LV_SYMBOL_LIST
 
 static void build_main_menu(void);
 static lv_obj_t *create_menu_page(lv_obj_t *menu, char *title);
-static lv_obj_t *create_menu_item(lv_obj_t *parent, const char *icon,
-                                  const char *text, const char *value);
 static lv_obj_t *create_switch_item(lv_obj_t *parent, const char *icon,
                                     const char *text, bool on);
 static lv_obj_t *create_slider_item(lv_obj_t *parent, const char *icon,
                                     const char *text, int32_t value);
 static void build_display_page(lv_obj_t *menu, lv_obj_t *page);
-static void build_network_page(lv_obj_t *menu, lv_obj_t *page);
-static void build_audio_page(lv_obj_t *menu, lv_obj_t *page);
 static void build_led_page(lv_obj_t *menu, lv_obj_t *page);
-static void build_about_page(lv_obj_t *menu, lv_obj_t *page);
 
 static void app_exit_cb(void *user_data)
 {
@@ -102,42 +95,6 @@ static lv_obj_t *create_menu_page(lv_obj_t *menu, char *title)
     lv_obj_set_style_anim_time(page, 260, 0);
 
     return page;
-}
-
-static lv_obj_t *create_menu_item(lv_obj_t *parent, const char *icon,
-                                  const char *text, const char *value)
-{
-    lv_obj_t *item = lv_obj_create(parent);
-    lv_obj_set_size(item, LV_PCT(100), LV_SIZE_CONTENT);
-    lv_obj_set_style_bg_color(item, COLOR_PANEL, 0);
-    lv_obj_set_style_bg_opa(item, LV_OPA_COVER, 0);
-    lv_obj_set_style_radius(item, 10, 0);
-    lv_obj_set_style_border_width(item, 0, 0);
-    lv_obj_set_style_pad_all(item, 12, 0);
-    lv_obj_set_flex_flow(item, LV_FLEX_FLOW_ROW);
-    lv_obj_set_flex_align(item, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-
-    if (icon != NULL) {
-        lv_obj_t *ic = lv_label_create(item);
-        lv_label_set_text(ic, icon);
-        lv_obj_set_style_text_color(ic, COLOR_HIGHLIGHT, 0);
-    }
-
-    lv_obj_t *label = lv_label_create(item);
-    lv_label_set_text(label, text);
-    lv_obj_set_style_text_color(label, COLOR_TEXT, 0);
-    lv_obj_set_style_text_font(label, FONT_CN, 0);
-    lv_obj_set_style_pad_left(label, icon != NULL ? 10 : 0, 0);
-    lv_obj_set_flex_grow(label, 1);
-
-    if (value != NULL) {
-        lv_obj_t *val = lv_label_create(item);
-        lv_label_set_text(val, value);
-        lv_obj_set_style_text_color(val, COLOR_TEXT_SEC, 0);
-        lv_obj_set_style_text_font(val, FONT_CN, 0);
-    }
-
-    return item;
 }
 
 static lv_obj_t *create_switch_item(lv_obj_t *parent, const char *icon,
@@ -231,27 +188,17 @@ static lv_obj_t *create_slider_item(lv_obj_t *parent, const char *icon,
     return slider;
 }
 
+static void brightness_ctrl_event_cb(lv_event_t *event)
+{
+    lv_obj_t *slider = lv_event_get_target(event);
+    lcd_brightness_set((uint8_t)lv_slider_get_value(slider));
+}
+
 static void build_display_page(lv_obj_t *menu, lv_obj_t *page)
 {
     LV_UNUSED(menu);
-    create_menu_item(page, ICON_DISPLAY, "\xe5\x88\x86\xe8\xbe\xa8\xe7\x8e\x87", "320x480");
-    create_menu_item(page, ICON_DISPLAY, "\xe9\x9d\xa2\xe6\x9d\xbf", "ST7789");
-    (void)create_slider_item(page, ICON_DISPLAY, "\xe4\xba\xae\xe5\xba\xa6", 80);
-}
-
-static void build_network_page(lv_obj_t *menu, lv_obj_t *page)
-{
-    LV_UNUSED(menu);
-    create_switch_item(page, ICON_WIFI, "\xe6\x97\xa0\xe7\xba\xbf\xe7\xbd\x91", true);
-    create_menu_item(page, ICON_WIFI, "\xe7\x8a\xb6\xe6\x80\x81", "\xe6\x9c\xaa\xe8\xbf\x9e\xe6\x8e\xa5");
-    create_menu_item(page, ICON_WIFI, "IP", "192.168.1.100");
-}
-
-static void build_audio_page(lv_obj_t *menu, lv_obj_t *page)
-{
-    LV_UNUSED(menu);
-    (void)create_slider_item(page, ICON_AUDIO, "\xe9\x9f\xb3\xe9\x87\x8f", 50);
-    create_switch_item(page, ICON_AUDIO, "\xe9\x9d\x99\xe9\x9f\xb3", false);
+    lv_obj_t *slider = create_slider_item(page, ICON_DISPLAY, "\xe4\xba\xae\xe5\xba\xa6", 80);
+    lv_obj_add_event_cb(slider, brightness_ctrl_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 }
 
 static void build_led_page(lv_obj_t *menu, lv_obj_t *page)
@@ -268,14 +215,6 @@ static void build_led_page(lv_obj_t *menu, lv_obj_t *page)
     lv_obj_add_event_cb(ledb_sw, ledb_switch_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 }
 
-static void build_about_page(lv_obj_t *menu, lv_obj_t *page)
-{
-    LV_UNUSED(menu);
-    create_menu_item(page, ICON_INFO, "\xe5\xbc\x80\xe5\x8f\x91\xe6\x9d\xbf", "STM32H750");
-    create_menu_item(page, ICON_INFO, "\xe5\x9b\xbe\xe5\xbd\xa2\xe5\xba\x93", "LVGL");
-    create_menu_item(page, ICON_INFO, "\xe6\x97\xb6\xe9\x92\x9f", "\xe5\x8f\xaf\xe7\x94\xa8");
-}
-
 static void build_main_menu(void)
 {
     lv_obj_t *menu;
@@ -285,17 +224,14 @@ static void build_main_menu(void)
     lv_obj_t *subtitle_label;
     lv_obj_t *list_cont;
     lv_obj_t *page_display;
-    lv_obj_t *page_network;
-    lv_obj_t *page_audio;
     lv_obj_t *page_led;
-    lv_obj_t *page_about;
 
     struct menu_item_desc {
         const char *icon;
         const char *text;
         lv_obj_t *page;
         lv_event_cb_t cb;
-    } items[7];
+    } items[4];
 
     lv_obj_clean(lv_scr_act());
     lv_obj_set_style_bg_color(lv_scr_act(), COLOR_BG, 0);
@@ -331,17 +267,8 @@ static void build_main_menu(void)
     page_display = create_menu_page(menu, "\xe6\x98\xbe\xe7\xa4\xba");
     build_display_page(menu, page_display);
 
-    page_network = create_menu_page(menu, "\xe7\xbd\x91\xe7\xbb\x9c");
-    build_network_page(menu, page_network);
-
-    page_audio = create_menu_page(menu, "\xe9\x9f\xb3\xe9\xa2\x91");
-    build_audio_page(menu, page_audio);
-
     page_led = create_menu_page(menu, "\xe7\x81\xaf\xe6\x8e\xa7");
     build_led_page(menu, page_led);
-
-    page_about = create_menu_page(menu, "\xe5\x85\xb3\xe4\xba\x8e");
-    build_about_page(menu, page_about);
 
     root_page = lv_menu_page_create(menu, NULL);
     lv_obj_set_style_pad_hor(root_page, 0, 0);
@@ -376,14 +303,11 @@ static void build_main_menu(void)
     lv_obj_set_flex_flow(list_cont, LV_FLEX_FLOW_COLUMN);
 
     items[0] = (struct menu_item_desc){ ICON_DISPLAY, "\xe6\x98\xbe\xe7\xa4\xba", page_display, NULL };
-    items[1] = (struct menu_item_desc){ ICON_WIFI, "\xe7\xbd\x91\xe7\xbb\x9c", page_network, NULL };
-    items[2] = (struct menu_item_desc){ ICON_AUDIO, "\xe9\x9f\xb3\xe9\xa2\x91", page_audio, NULL };
-    items[3] = (struct menu_item_desc){ ICON_LED, "\xe7\x81\xaf\xe6\x8e\xa7", page_led, NULL };
-    items[4] = (struct menu_item_desc){ ICON_CALC, "\xe8\xae\xa1\xe7\xae\x97\xe5\x99\xa8", NULL, open_calculator_event_cb };
-    items[5] = (struct menu_item_desc){ ICON_CLOCK, "\xe6\x97\xb6\xe9\x92\x9f", NULL, open_clock_event_cb };
-    items[6] = (struct menu_item_desc){ ICON_INFO, "\xe5\x85\xb3\xe4\xba\x8e", page_about, NULL };
+    items[1] = (struct menu_item_desc){ ICON_LED, "\xe7\x81\xaf\xe6\x8e\xa7", page_led, NULL };
+    items[2] = (struct menu_item_desc){ ICON_CALC, "\xe8\xae\xa1\xe7\xae\x97\xe5\x99\xa8", NULL, open_calculator_event_cb };
+    items[3] = (struct menu_item_desc){ ICON_CLOCK, "\xe6\x97\xb6\xe9\x92\x9f", NULL, open_clock_event_cb };
 
-    for (uint32_t i = 0; i < 7U; ++i) {
+    for (uint32_t i = 0; i < 4U; ++i) {
         lv_obj_t *item = lv_obj_create(list_cont);
         lv_obj_set_size(item, LV_PCT(100), LV_SIZE_CONTENT);
         lv_obj_set_style_bg_color(item, COLOR_PANEL, 0);
@@ -422,5 +346,6 @@ static void build_main_menu(void)
 
 void ui_init(void)
 {
+    lcd_brightness_init();
     build_main_menu();
 }
